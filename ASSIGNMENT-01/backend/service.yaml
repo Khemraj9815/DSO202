@@ -1,0 +1,23 @@
+# =============================================================================
+# File        : backend/service.yaml
+# Practical   : DSO202 Practical 1
+# Apply with  : kubectl apply -f backend/service.yaml
+# Purpose     : Exposes the backend API tier internally to cluster components.
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: dso202-assignment-01
+  labels:
+    dso202/managed-by: declarative
+  annotations:
+    dso202.cst.edu.bt/description: "Internal cluster access service layer for API workloads"
+spec:
+  type: ClusterIP
+  selector:
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 8080

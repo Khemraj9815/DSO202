@@ -1,0 +1,79 @@
+# =============================================================================
+# File        : backend/deployment.yaml
+# Practical   : DSO202 Practical 1
+# Apply with  : kubectl apply -f backend/deployment.yaml
+# Purpose     : Deploys backend API tier containers with injected DB environment keys.
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+  namespace: dso202-assignment-01
+  labels:
+    dso202/managed-by: declarative
+  annotations:
+    dso202.cst.edu.bt/description: "Application logic API deployment tier"
+
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: backend
+  template:
+    metadata:
+      labels:
+        tier: backend
+    spec:
+      containers:
+      - name: backend-api
+        image: rynorbu11/dso202-backend:1.0 # Standard placeholder image; replace with your assigned backend image if applicable
+        ports:
+        - containerPort: 5000
+          name: api-port
+        # Resource allocations ensuring quota conformity
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        env:
+        # --- Application Configuration Mapping ---
+        - name: PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: APP_PORT
+        - name: CORS_ORIGIN
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: CORS_ORIGIN
+        # --- Database Connection Parameters ---
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DB_PORT
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: DB_NAME
+        # --- Database Credentials ---
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: DB_PASSWORD

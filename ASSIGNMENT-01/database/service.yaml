@@ -1,0 +1,24 @@
+# =============================================================================
+# File        : database/service.yaml
+# Practical   : DSO202 Practical 1 - Task 3
+# Apply with  : kubectl apply -f database/service.yaml
+# Purpose     : Headless service routing traffic strictly within the namespace.
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: database-service
+  namespace: dso202-assignment-01
+  labels:
+    dso202/assignment: "01"
+    dso202/managed-by: declarative
+  annotations:
+    dso202.cst.edu.bt/description: "Headless service for direct database pod DNS routing"
+spec:
+  clusterIP: None # <-- Essential requirement for Headless assignment criteria
+  selector:
+    tier: database
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

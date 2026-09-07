@@ -1,0 +1,47 @@
+# =============================================================================
+# File        : frontend/deployment.yaml
+# Practical   : DSO202 Practical 1
+# Apply with  : kubectl apply -f frontend/deployment.yaml
+# Purpose     : Deploys frontend user interface containers with backend access keys.
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+  namespace: dso202-assignment-01
+  labels:
+    dso202/assignment: "01"
+    dso202/managed-by: declarative
+  annotations:
+    dso202.cst.edu.bt/description: "Presentation user interface deployment tier"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: frontend-ui
+        image: rynorbu11/dso202-frontend:1.0
+        ports:
+        - containerPort: 3000
+          name: http-port
+        # Resource allocations ensuring quota conformity
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        env:
+        # Injects the backend routing string into your web client engine
+        - name: BACKEND_URL
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: BACKEND_URL
