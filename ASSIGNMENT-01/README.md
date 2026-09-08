@@ -23,11 +23,11 @@ Data tier will be exposed to the application tier using a Service of type Cluste
 
 | Tier / Workload | CPU Request | CPU Limit | Memory Request | Memory Limit |
 | :--- | :--- | :--- | :--- | :--- |
-| **Database (`dso202-db`)** | `250m` | `500m` | `256Mi` | `512Mi` |
-| **Backend (`dso202-backend`)** | `250m` | `500m` | `256Mi` | `512Mi` |
-| **Frontend (`dso202-frontend`)**| `250m` | `500m` | `256Mi` | `512Mi` |
-| **Total Stack Footprint** | **`750m`** | **`1.5 CPU`** | **`768Mi`** | **`1.5Gi`** |
-| **Hard Namespace Quota** | **`2.0 CPU`** | **`4.0 CPU`** | **`2.0Gi`** | **`4.0Gi`** |
+| Database | 250m | 500m | 256Mi | 512Mi |
+| Backend  | 250m | 500m | 256Mi | 512Mi |
+| Frontend | 250m | 500m | 256Mi | 512Mi |
+| **Total Stack Footprint** | 750m | 1.5 CPU | 768Mi | 1.5Gi |
+| **Hard Namespace Quota** | 2.0 CPU | 4.0 CPU | 2.0Gi | 4.0Gi |
 
 **Justifications**
 
@@ -60,4 +60,14 @@ these pictures show the self-healing and data persistence of the application. Th
 ![alt text](assets/8.png)
 ![alt text](assets/9.png)
 These picture shows that when a pod is deleted, the data in the database is still available because it is stored in a persistent volume.
+
+**Declarative vs. imperative comparison**
+
+![alt text](assets/10.png)
+when the frontend-deployment was deleted and recreated using a imperative command, the new pod didn't have the right label that the service was looking for. Because of this, the service couldn't find any pods to send traffic to, and the application stopped working. When again applied the original configuration file again, it fixed the labels and settings, and everything started working again. This shows that using configuration files (declarative) is better for managing applications in Kubernetes because it keeps all the settings and relationships between different parts of the app intact, while using commands (imperative) can lead to problems if you miss something.
+
+**Reflection**
+
+Hosting 3 tier application on the cluster was interesting and challenging. I learned how to create and manage deployments, services, and persistent volumes in K8s. I was more familier dealing with the deployment objects such as creating and deleting it. The main challenge was to make sure that the services are communicating with each other and the data is persistent even after the pods are deleted. Still I don't have clear idea of how to calculate the resource allocation for each tier based on the workload and traffic. 
+
 
