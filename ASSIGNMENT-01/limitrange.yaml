@@ -1,0 +1,20 @@
+# =============================================================================
+# File        : limitrange.yaml
+# Practical   : DSO202 Practical 1 - Task 6
+# Apply with  : kubectl apply -f limitrange.yaml
+# Purpose     : Injects default resource profiles onto single unconfigured pods.
+# =============================================================================
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: app-limit-range
+  namespace: dso202-assignment-01
+spec:
+  limits:
+  - default:                # Absolute ceiling for a single container if unspecified
+      cpu: "500m"
+      memory: "512Mi"
+    defaultRequest:         # Baseline entry point for a single container if unspecified
+      cpu: "250m"
+      memory: "256Mi"
+    type: Container

@@ -2,35 +2,38 @@
 
 ### Aims/Objectives
 
-
-
 K8s objects that helps in scheduling and running the Pods are:
 - scheduler: Schedules the Pods to run on the available nodes based on the resources.
 - controller-manager: Mantain the desired state of the cluster by managing the lifecycle of the pods and other objects(deployments, services, etc).
 - kublet: It is responsible to start/stop the containers in the pods.
 - Container runtime: It is responsible for running the containers in the pods.
 
-To expose the presentation tier to the internet, API server will be used to create a Service of type LoadBalancer, which will provide an external IP address for accessing the frontend. The Service will route traffic to the Pods in the presentation tier. Deployment will be used to manage the Pods, ensuring that the desired number of replicas are running and automatically replacing any failed Pods.
+To expose the presentation tier to the internet, API server will be used to create a Service of type LoadBalancer, which will provide an external IP address for accessing the frontend. For now, we are using port-forwarding to access the frontend application. 
 
-Application tier will be exposed to the presentation tier using a Service of type ClusterIP, which will provide an internal IP address for communication between the two tiers. Deployment will be used to manage the Pods in the application tier, ensuring that the desired number of replicas are running and automatically replacing any failed Pods.
+Application tier will be exposed to the presentation tier using a Service, which will provide an internal IP address for communication between the two tiers. Same as the front tier it is also being exposed using port-forwarding for now.
 
-Data tier will be exposed to the application tier using a Service of type ClusterIP, which will provide an internal IP address for communication between the two tiers. Deployment will be used to manage the Pods in the data tier, ensuring that the desired number of replicas are running and automatically replacing any failed Pods.
+Data tier will be exposed to the application tier using a Service of type ClusterIP, which will provide an internal IP address for communication between the two tiers. 
 
-## 🛠️ Task 2: Configuration, Secrets, and Security Architecture
+## Configuration, Secrets, and Security Architecture
 
-### 1. Configuration Matrix (ConfigMap & Secrets)
-To decouple configuration from application code, the environment setup is divided cleanly between non-sensitive properties and access credentials:
 
-*   **ConfigMap (`app-config`)**: Manages structural environment paths, ports, and domains including `DB_HOST`, `DB_PORT`, `DB_NAME`, `APP_PORT`, `CORS_ORIGIN`, `POSTGRES_DB`, and `BACKEND_URL`.
-*   **Secret (`db-credentials`)**: Restricts access credentials including `DB_USER`, `DB_PASSWORD`, `POSTGRES_USER`, and `POSTGRES_PASSWORD`.
+**Production Remediation**: In the production standard, secrets should be encrypted at rest. This tells the database to automatically encrypt the data with a master key before writing it to the disk. If an attacker physically steals the hard drives from the data center, they will only see unreadable garbage text.
 
-### Kubernetes Secrets Encoding vs. Encryption
-Per the explicit requirements of Section 1.2.5, it is critical to highlight that standard **Kubernetes Secrets are only base64-encoded, not encrypted at rest by default**. 
+**Resource Allocation**
 
-*   **The Risk**: Base64 is a simple text-obfuscation mechanism, not a secure encryption algorithm. Any user or attacker with access to the cluster's `etcd` database, or a developer with basic `kubectl get secret -o yaml` read permissions, can instantaneously decode the secrets back into plain-text by executing a simple translation command (e.g., `echo "ZGJ1c2Vy" | base64 --decode`).
-*   **Production Remediation**: In a true enterprise environment, this out-of-the-box behavior must be supplemented by real cryptographic systems. Production clusters implement automated Key Management Services (KMS) plugins, cloud-managed secret vaults (like AWS Secrets Manager or HashiCorp Vault), or GitOps-friendly sealing layers (like Bitnami Sealed Secrets). 
-*   **Assignment Scope**: Implementing actual encryption layers falls strictly outside the operational configuration scope of this assignment; this explicit notation satisfies the architectural documentation requirement.
+| Tier / Workload | CPU Request | CPU Limit | Memory Request | Memory Limit |
+| :--- | :--- | :--- | :--- | :--- |
+| **Database (`dso202-db`)** | `250m` | `500m` | `256Mi` | `512Mi` |
+| **Backend (`dso202-backend`)** | `250m` | `500m` | `256Mi` | `512Mi` |
+| **Frontend (`dso202-frontend`)**| `250m` | `500m` | `256Mi` | `512Mi` |
+| **Total Stack Footprint** | **`750m`** | **`1.5 CPU`** | **`768Mi`** | **`1.5Gi`** |
+| **Hard Namespace Quota** | **`2.0 CPU`** | **`4.0 CPU`** | **`2.0Gi`** | **`4.0Gi`** |
 
+**Justifications**
+
+- I matched every container's baseline and spike settings directly to what we defined in our `limitrange.yaml`. This ensures everything boots up smoothly without throwing configuration errors, keeping the deployment clean and standardized.
+- When you add up the baseline needs for all three tiers, the whole stack uses **`750m` CPU and `768Mi` RAM**. That sits at less than **40% of our total namespace quota**, which is great. It leaves plenty of open headroom so the app can absorb sudden traffic surges without crashing the cluster or hitting a resource ceiling.
+- Setting strict upper limits ensures that if a database query lags or a front-end script loops out of control, it can't run away with all the memory on my laptop. This keeps the environment stable and prevents the database from getting abruptly killed by the system due to low memory.
 
 **CRUD Operations**
 
@@ -40,5 +43,21 @@ Per the explicit requirements of Section 1.2.5, it is critical to highlight that
 
 ![alt text](assets/3.png)
 
+**Service DNS resolution**
 
+![alt text](assets/4.png)
+
+this picture shows the DNS resolution of the services in the cluster. The frontend service can resolve the backend service, and the backend service can resolve the database service. This is achieved by using the internal DNS provided by Kubernetes, which allows services to communicate with each other using their service names.
+
+**Self-healing and data persistence**
+
+![alt text](assets/5.png)
+![alt text](assets/6.png)
+
+these pictures show the self-healing and data persistence of the application. The  picture shows that when a pod is deleted, it is automatically recreated by the deployment controller.    
+
+![alt text](assets/7.png)
+![alt text](assets/8.png)
+![alt text](assets/9.png)
+These picture shows that when a pod is deleted, the data in the database is still available because it is stored in a persistent volume.
 
