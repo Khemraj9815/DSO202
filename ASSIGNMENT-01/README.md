@@ -1,6 +1,11 @@
 ## DSO202 Assignment 1: Three-Tier Application Deployment on Kubernetes Cluster
 
 ### Aims/Objectives
+- To deploy a stateless three-tier application on a Kubernetes cluster.
+- To understand the architecture of a three-tier application and how to deploy it on Kubernetes.
+- To learn about the various Kubernetes objects and their roles in managing application deployments.
+- To understand the concepts of configuration, secrets, and security in Kubernetes.
+
 
 K8s objects that helps in scheduling and running the Pods are:
 - scheduler: Schedules the Pods to run on the available nodes based on the resources.
@@ -15,7 +20,6 @@ Application tier will be exposed to the presentation tier using a Service, which
 Data tier will be exposed to the application tier using a Service of type ClusterIP, which will provide an internal IP address for communication between the two tiers. 
 
 ## Configuration, Secrets, and Security Architecture
-
 
 **Production Remediation**: In the production standard, secrets should be encrypted at rest. This tells the database to automatically encrypt the data with a master key before writing it to the disk. If an attacker physically steals the hard drives from the data center, they will only see unreadable garbage text.
 
