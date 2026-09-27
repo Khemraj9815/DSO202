@@ -1,0 +1,68 @@
+# =============================================================================
+# File        : statefulset.yaml
+# Practical   : DSO202 Practical 1 
+# Apply with  : kubectl apply -f database/statefulset.yaml
+# Purpose     : Provisions a single-replica custom PostgreSQL database StatefulSet.
+# =============================================================================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: database-deploy
+  namespace: dso202-assignment-02
+  labels:
+    dso202/assignment: "01"
+    dso202/managed-by: declarative
+  annotations:
+    dso202.cst.edu.bt/description: "Single-replica custom PostgreSQL database StatefulSet"
+spec:
+  serviceName: "database-service"
+  replicas: 1
+  selector:
+    matchLabels:
+      tier: database
+  template:
+    metadata:
+      labels:
+        tier: database
+    spec:
+      containers:
+      - name: postgresql
+        image: rynorbu11/dso202-db:1.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5432
+          name: postgres-port
+        resources:
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        env:
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-credentials
+              key: POSTGRES_PASSWORD
+        volumeMounts:
+        - name: postgres-storage
+          mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

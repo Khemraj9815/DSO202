@@ -1,0 +1,35 @@
+# =============================================================================
+# File        : ingress.yaml
+# Namespace   : dso202-assignment-02
+# Target      : Traefik Ingress Controller
+# =============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: app-ingress
+  namespace: dso202-assignment-02
+  annotations:
+    # Traefik native annotation to strip prefix without CRDs
+    traefik.ingress.kubernetes.io/rule-type: PathPrefixStrip
+spec:
+  ingressClassName: traefik
+  rules:
+  - http:
+      paths:
+      # --- Backend API Route (Must come FIRST) ---
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 5000
+
+      # --- Frontend Route ---
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80

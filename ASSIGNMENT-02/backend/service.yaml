@@ -1,0 +1,24 @@
+# =============================================================================
+# File        : backend/service.yaml
+# Practical   : DSO202 Practical 1
+# Apply with  : kubectl apply -f backend/service.yaml
+# Purpose     : Exposes the backend API tier externally via NodePort.
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: dso202-assignment-02
+  labels:
+    dso202/managed-by: declarative
+  annotations:
+    dso202.cst.edu.bt/description: "NodePort access service layer for API workloads"
+spec:
+  type: NodePort
+  selector:
+    tier: backend
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 8080   # Matches containerPort in deployment.yaml
+      nodePort: 32081    # Static port on the host (30000-32767 range)
