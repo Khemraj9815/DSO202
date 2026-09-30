@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h1>Stage: ${STAGE}</h1>
+    <p>Total replicas: ${REPLICAS}</p>
+  </body>
+</html> 

@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - ../../base
+
+namePrefix: dev-
+labels:
+  - pairs:
+      env: dev
+
+patches:
+  - target:
+      kind: Deployment
+      name: nginx
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 1
+
+configMapGenerator:
+  - name: nginx-config
+    behavior: merge
+    literals:
+      - STAGE=dev
+
+replacements:
+  - source:
+      kind: Deployment
+      name: nginx
+      fieldPath: spec.replicas
+    targets:
+      - select:
+          kind: ConfigMap
+          name: nginx-config
+        fieldPaths:
+          - data.REPLICAS
