@@ -42,7 +42,7 @@ helm upgrade my-release my-chart --set replicaCount=3
 ![alt text](assets/4.png)
 
 Lets try to upgrade the app-version and try to do rollback.
-![alt text](asssets/5.png)
+![alt text](assets/5.png)
 right now the app version is 1.16.0, lets upgrade it to 1.17.0
 ![alt text](assets/6.png)
 Now lets rollback to previous version
