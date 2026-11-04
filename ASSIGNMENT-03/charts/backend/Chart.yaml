@@ -1,0 +1,6 @@
+apiVersion: v2
+name: backend
+description: Application tier - API Deployment for the DSO202 three-tier app
+type: application
+version: 0.1.0 # chart version
+appVersion: "1.0" # application version

@@ -1,0 +1,27 @@
+fullnameOverride: backend
+
+image:
+  repository: rynorbu11/dso202-backend
+  tag: "1.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+containerPort: 8080   # port the API listens on inside the container
+service:
+  type: ClusterIP
+  port: 8080          # backend port (used for port-forward)
+
+config:
+  corsOrigin: "*"
+
+# Where to find the database (must match the database chart)
+database:
+  host: database        # Service name created by the database chart
+  port: 5432
+  name: app_db
+  secretName: db-credentials   # Secret created by the database chart
+
+resources:
+  requests: { cpu: 250m, memory: 256Mi }
+  limits:   { cpu: 500m, memory: 512Mi }

@@ -1,0 +1,30 @@
+# Base = the three Helm charts rendered with their default values.yaml,
+# plus namespace-level resources that don't belong to any single tier.
+# Build with:  kubectl kustomize --enable-helm kustomize/base
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dso202-assignment-03
+
+resources:
+  - namespace.yaml
+  - resourcequota.yaml
+  - limitrange.yaml
+
+helmGlobals:
+  chartHome: ../../charts      # local charts, no Helm repo needed
+
+helmCharts:
+  - name: database
+    releaseName: database
+    namespace: dso202-assignment-03
+  - name: backend
+    releaseName: backend
+    namespace: dso202-assignment-03
+  - name: frontend
+    releaseName: frontend
+    namespace: dso202-assignment-03
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: dso202-three-tier

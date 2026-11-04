@@ -1,0 +1,46 @@
+# PROD: more replicas, bigger DB disk, stricter CORS, pinned image tags.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dso202-prod
+
+resources:
+  - ../../base
+
+labels:
+  - pairs:
+      env: prod
+
+# Change image tags without touching the charts
+images:
+  - name: rynorbu11/dso202-frontend
+    newTag: "1.0"
+  - name: rynorbu11/dso202-backend
+    newTag: "1.0"
+  - name: rynorbu11/dso202-db
+    newTag: "1.0"
+
+replicas:
+  - name: backend
+    count: 2
+  - name: frontend
+    count: 2
+
+patches:
+  - target: { kind: Namespace, name: dso202-assignment-03 }
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: dso202-prod
+  # Only allow the port-forwarded frontend origin
+  - target: { kind: ConfigMap, name: backend-config }
+    patch: |-
+      - op: replace
+        path: /data/CORS_ORIGIN
+        value: "http://localhost"
+  # Bigger persistent volume for the database
+  - target: { kind: StatefulSet, name: database }
+    patch: |-
+      - op: replace
+        path: /spec/volumeClaimTemplates/0/spec/resources/requests/storage
+        value: 2Gi

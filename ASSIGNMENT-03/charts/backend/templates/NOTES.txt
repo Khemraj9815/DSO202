@@ -1,0 +1,4 @@
+Backend "{{ include "backend.fullname" . }}" deployed in namespace {{ .Release.Namespace }}.
+
+Port-forward the API to your machine:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "backend.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}

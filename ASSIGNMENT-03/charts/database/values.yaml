@@ -1,0 +1,28 @@
+# Name used for every resource in this chart (Service DNS = database)
+fullnameOverride: database
+
+image:
+  repository: rynorbu11/dso202-db
+  tag: "1.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  port: 5432          # database port
+
+postgres:
+  database: app_db
+  # Credentials stored in a Secret created by this chart.
+  # Override at install time:  --set postgres.password=xxxx
+  username: dbuser
+  password: dbpassword
+  secretName: db-credentials   # backend chart reads this same Secret
+
+persistence:
+  size: 1Gi
+  storageClass: ""     # "" = cluster default StorageClass
+
+resources:
+  requests: { cpu: 250m, memory: 256Mi }
+  limits:   { cpu: 500m, memory: 512Mi }

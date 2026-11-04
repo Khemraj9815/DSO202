@@ -1,0 +1,22 @@
+fullnameOverride: frontend
+
+image:
+  repository: rynorbu11/dso202-frontend
+  tag: "1.0"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+containerPort: 8080   # port the web server listens on inside the image
+service:
+  type: ClusterIP
+  port: 80            # frontend port (used for port-forward)
+
+config:
+  # The browser calls the backend directly, so this is the backend address
+  # AS SEEN FROM YOUR BROWSER, i.e. the backend port-forward.
+  backendUrl: "http://localhost:8080"
+
+resources:
+  requests: { cpu: 250m, memory: 256Mi }
+  limits:   { cpu: 500m, memory: 512Mi }

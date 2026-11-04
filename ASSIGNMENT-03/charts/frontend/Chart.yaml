@@ -1,0 +1,6 @@
+apiVersion: v2
+name: frontend
+description: Presentation tier - web UI Deployment for the DSO202 three-tier app
+type: application
+version: 0.1.0
+appVersion: "1.0"

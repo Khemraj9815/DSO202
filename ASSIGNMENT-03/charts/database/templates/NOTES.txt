@@ -1,0 +1,5 @@
+Database "{{ include "database.fullname" . }}" deployed in namespace {{ .Release.Namespace }}.
+
+Port-forward to reach PostgreSQL from your machine:
+  kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "database.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+  psql -h localhost -p {{ .Values.service.port }} -U {{ .Values.postgres.username }} -d {{ .Values.postgres.database }}

@@ -1,0 +1,6 @@
+Frontend "{{ include "frontend.fullname" . }}" deployed in namespace {{ .Release.Namespace }}.
+
+Port-forward the UI (local ports below 1024 need sudo on Linux/macOS):
+  sudo -E kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "frontend.fullname" . }} {{ .Values.service.port }}:{{ .Values.service.port }}
+Then open http://localhost:{{ .Values.service.port }}
+The backend must also be port-forwarded so the browser can reach {{ .Values.config.backendUrl }}
